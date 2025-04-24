@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MNIST Web App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/i18n.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="typing-effect" data-i18n="app_title">MNIST Web Application</h1>
+            <p class="subtitle animate-fadeIn" data-i18n="app_subtitle">Interactive Neural Network Training & Visualization</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="/" class="active" onclick="return MNIST.animations.pageTransition('/')" data-i18n="nav_home">Home</a></li>
+                <li><a href="/train" onclick="return MNIST.animations.pageTransition('/train')" data-i18n="nav_train">Train Model</a></li>
+                <li><a href="/draw" onclick="return MNIST.animations.pageTransition('/draw')" data-i18n="nav_draw">Test Predictions</a></li>
+                <li><a href="/explore" onclick="return MNIST.animations.pageTransition('/explore')" data-i18n="nav_explore">Explore Dataset</a></li>
+                <li><a href="/visualize" onclick="return MNIST.animations.pageTransition('/visualize')" data-i18n="nav_visualize">Visualize</a></li>
+                <li><a href="/models" onclick="return MNIST.animations.pageTransition('/models')" data-i18n="nav_models">Compare Models</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <section class="hero">
+                <div class="hero-content slide-from-left animate-on-scroll" data-animate-once="true">
+                    <h2 data-i18n="welcome_title">Welcome to the MNIST Neural Network Visualizer</h2>
+                    <p data-i18n="welcome_desc">A lightweight application for training, testing and visualizing neural networks on the MNIST dataset.</p>
+                    <div class="button-group">
+                        <a href="/train" class="button primary" onclick="return MNIST.animations.pageTransition('/train')" data-i18n="start_training">Start Training</a>
+                        <a href="/draw" class="button secondary" onclick="return MNIST.animations.pageTransition('/draw')" data-i18n="test_model">Test Model</a>
+                    </div>
+                </div>
+                <div class="hero-image slide-from-right animate-on-scroll" data-animate-once="true">
+                    <img src="{{ url_for('static', filename='img/mnist_digits.png') }}" alt="MNIST Digits" class="hover-scale" style="max-width: 100%; height: auto; display: block;">
+                </div>
+            </section>
+
+            <section class="features">
+                <h2 class="animate-on-scroll" data-animate-once="true" data-i18n="features">Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card stagger-item animate-scaleUp animate-on-scroll" data-animate-once="true">
+                        <div class="feature-icon animate-pulse">🧠</div>
+                        <h3 data-i18n="feature_training">Interactive Training</h3>
+                        <p data-i18n="feature_training_desc">Train neural networks with custom parameters and watch the learning process in real-time.</p>
+                    </div>
+                    <div class="feature-card stagger-item animate-scaleUp animate-on-scroll" data-animate-once="true">
+                        <div class="feature-icon animate-pulse">✏️</div>
+                        <h3 data-i18n="feature_draw">Draw & Predict</h3>
+                        <p data-i18n="feature_draw_desc">Draw your own digits and see how the model predicts them with probability visualization.</p>
+                    </div>
+                    <div class="feature-card stagger-item animate-scaleUp animate-on-scroll" data-animate-once="true">
+                        <div class="feature-icon animate-pulse">📊</div>
+                        <h3 data-i18n="feature_viz">Live Visualization</h3>
+                        <p data-i18n="feature_viz_desc">Watch accuracy and loss metrics change during training with interactive charts.</p>
+                    </div>
+                    <div class="feature-card stagger-item animate-scaleUp animate-on-scroll" data-animate-once="true">
+                        <div class="feature-icon animate-pulse">🔍</div>
+                        <h3 data-i18n="feature_explore">Dataset Explorer</h3>
+                        <p data-i18n="feature_explore_desc">Browse through MNIST dataset samples and understand what the model is learning from.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="quick-start animate-on-scroll" data-animate-once="true">
+                <h2 data-i18n="quickstart">Quick Start Guide</h2>
+                <div class="steps">
+                    <div class="step fade-in animate-on-scroll" data-animate-once="true">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3 data-i18n="step_train">Train a Model</h3>
+                            <p data-i18n="step_train_desc">Go to the <a href="/train" onclick="return MNIST.animations.pageTransition('/train')">Train</a> page to create and train a neural network with custom parameters.</p>
+                        </div>
+                    </div>
+                    <div class="step fade-in animate-on-scroll" data-animate-once="true">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3 data-i18n="step_test">Test Predictions</h3>
+                            <p data-i18n="step_test_desc">Visit the <a href="/draw" onclick="return MNIST.animations.pageTransition('/draw')">Draw</a> page to test your trained model by drawing digits.</p>
+                        </div>
+                    </div>
+                    <div class="step fade-in animate-on-scroll" data-animate-once="true">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3 data-i18n="step_explore">Explore Dataset</h3>
+                            <p data-i18n="step_explore_desc">Check out the <a href="/explore" onclick="return MNIST.animations.pageTransition('/explore')">Explore</a> page to see samples from the MNIST dataset.</p>
+                        </div>
+                    </div>
+                    <div class="step fade-in animate-on-scroll" data-animate-once="true">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3 data-i18n="step_compare">Compare Models</h3>
+                            <p data-i18n="step_compare_desc">Use the <a href="/models" onclick="return MNIST.animations.pageTransition('/models')">Models</a> page to compare performance of different neural network configurations.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="animate-on-scroll" data-animate-once="true">
+            <p><span data-i18n="footer_copyright">&copy; 2023 MNIST Web App. Built with</span> <a href="https://flask.palletsprojects.com/" target="_blank">Flask</a> <span data-i18n="and">and</span> <a href="https://www.chartjs.org/" target="_blank">Chart.js</a>.</p>
+            <p><span data-i18n="footer_source">Source code available on</span> <a href="https://github.com/your-username/mnist-web-app" target="_blank">GitHub</a>.</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+</body>
+</html> 

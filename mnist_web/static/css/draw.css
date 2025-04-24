@@ -1,0 +1,755 @@
+/* Styles for Draw and Test Predictions Page */
+
+/* Canvas Container */
+.canvas-container {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Drawing Canvas */
+#drawing-canvas {
+    background-color: white;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: crosshair;
+    display: block;
+    margin: 0 auto 20px;
+    max-width: 100%;
+    touch-action: none; /* Prevents scrolling on touch devices */
+}
+
+/* Canvas Controls */
+.canvas-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.canvas-controls button {
+    min-width: 120px;
+    padding: 10px 15px;
+    font-weight: 500;
+}
+
+/* Prediction Result */
+.prediction-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.prediction-value {
+    font-size: 4rem;
+    font-weight: 700;
+    color: #343a40;
+    margin-bottom: 10px;
+}
+
+.prediction-confidence {
+    font-size: 1.2rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+/* Chart Container */
+.chart-container {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.chart-container canvas {
+    max-height: 300px;
+}
+
+/* Instructions */
+.instructions {
+    background-color: #e9f7fe;
+    border-left: 4px solid #17a2b8;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 0 8px 8px 0;
+}
+
+.instructions h3 {
+    margin-top: 0;
+    color: #17a2b8;
+}
+
+.instructions ol {
+    padding-left: 20px;
+}
+
+.instructions li {
+    margin-bottom: 8px;
+}
+
+/* Button colors */
+.btn-clear {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-clear:hover {
+    background-color: #5a6268;
+}
+
+.btn-predict {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-predict:hover {
+    background-color: #138496;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .canvas-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .canvas-controls button {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    #drawing-canvas {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* Draw Page Styles for MNIST Web App */
+
+/* Draw Container Layout */
+.draw-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.canvas-panel, 
+.prediction-panel {
+    flex: 1;
+    min-width: 300px;
+    background-color: var(--card-color);
+    border-radius: var(--border-radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.canvas-panel:hover, 
+.prediction-panel:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Canvas Styles */
+.canvas-wrapper {
+    position: relative;
+    margin: 1.5rem 0;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1) inset;
+}
+
+#drawing-canvas {
+    display: block;
+    cursor: crosshair;
+    touch-action: none; /* Prevents scrolling on touch devices */
+    transition: all 0.3s ease;
+}
+
+#drawing-canvas.hover-active {
+    box-shadow: 0 0 15px rgba(63, 81, 181, 0.3);
+}
+
+.canvas-instructions {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--text-secondary);
+    width: 100%;
+    opacity: 0.5;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.canvas-wrapper:hover .canvas-instructions {
+    opacity: 0.2;
+}
+
+/* Drawing Tools */
+.drawing-tools {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.brush-size {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.brush-size label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.brush-size input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 6px;
+    background: var(--border-color);
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.brush-size input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.brush-size input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    background: var(--primary-dark);
+}
+
+/* Canvas Actions */
+.canvas-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.canvas-actions button {
+    flex: 1;
+}
+
+/* Prediction Results */
+.prediction-result {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.predicted-digit {
+    font-size: 5rem;
+    font-weight: bold;
+    height: 120px;
+    width: 120px;
+    line-height: 120px;
+    margin: 1rem auto;
+    border-radius: var(--border-radius-circle);
+    background-color: var(--primary-light);
+    color: var(--text-on-primary);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+.predicted-digit:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.predicted-digit:hover:after {
+    opacity: 1;
+}
+
+.predicted-correct {
+    background-color: var(--success-color);
+    animation: pulse 1s ease;
+}
+
+.predicted-wrong {
+    background-color: var(--error-color);
+    animation: shake 0.5s ease;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--text-on-primary);
+    animation: spin 1s linear infinite;
+}
+
+/* Probability Bars */
+.probabilities-container {
+    margin-top: 2rem;
+}
+
+.probability-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.probability-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.digit-label {
+    font-weight: bold;
+    min-width: 25px;
+}
+
+.probability-bar-container {
+    flex: 1;
+    height: 20px;
+    background-color: var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.probability-bar {
+    height: 100%;
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    width: 0;
+    transition: width 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.probability-item.animated .probability-bar {
+    animation: barGrow 1s ease-out forwards;
+}
+
+.probability-value {
+    font-size: 0.9rem;
+    min-width: 60px;
+    text-align: right;
+}
+
+/* Model Info */
+.model-info {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.model-select {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.model-select label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.model-select select {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+.model-select select:hover {
+    border-color: var(--primary-light);
+}
+
+.model-select select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+}
+
+/* Recent Predictions */
+.recent-predictions {
+    margin-top: 3rem;
+}
+
+.recent-predictions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.recent-prediction-item {
+    background-color: var(--card-color);
+    border-radius: var(--border-radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.recent-prediction-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+}
+
+.prediction-image {
+    height: 100px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.prediction-image img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.prediction-info {
+    padding: 0.75rem;
+    text-align: center;
+}
+
+.prediction-digit {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.prediction-time {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+.empty-message {
+    grid-column: 1 / -1;
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+    background-color: var(--card-color);
+    border-radius: var(--border-radius-md);
+}
+
+/* Drawing Point Animation */
+.drawing-point {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    background-color: rgba(63, 81, 181, 0.6);
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    animation: pointFade 0.3s ease-out forwards;
+}
+
+@keyframes pointFade {
+    0% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(2);
+    }
+}
+
+/* Save Notification */
+.save-notification {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background-color: var(--success-color);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-md);
+    z-index: 1000;
+    animation: slideInRight 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.save-notification span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background-color: rgba(255,255,255,0.3);
+    border-radius: 50%;
+}
+
+.save-notification.fade-out {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* Bar Growth Animation */
+@keyframes barGrow {
+    0% {
+        width: 0;
+    }
+    100% {
+        width: var(--final-width);
+    }
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .draw-container {
+        flex-direction: column;
+    }
+    
+    .canvas-panel, 
+    .prediction-panel {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .recent-predictions-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
+
+/* Styles for Draw & Predict Page */
+
+.draw-section {
+    margin-bottom: 30px;
+}
+
+.draw-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.canvas-panel, .prediction-panel {
+    flex: 1;
+    min-width: 300px;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Canvas Styles */
+.drawing-tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.brush-size {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.canvas-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#drawing-canvas {
+    display: block;
+    background-color: white;
+    cursor: crosshair;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+}
+
+.canvas-instructions {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #aaa;
+    font-style: italic;
+    pointer-events: none;
+    width: 100%;
+}
+
+.canvas-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+/* Prediction Styles */
+.prediction-result {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.predicted-digit {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #17a2b8;
+    line-height: 1;
+    margin: 15px 0;
+}
+
+#confidence-text {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Probability Bars */
+.probability-bars {
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.probability-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+    color: #495057;
+}
+
+.digit-label {
+    min-width: 30px;
+    text-align: right;
+    margin-right: 10px;
+    font-weight: 500;
+}
+
+.probability-bar-container {
+    flex-grow: 1;
+    height: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+    margin-right: 10px;
+    overflow: hidden;
+}
+
+.probability-bar {
+    height: 100%;
+    background-color: #17a2b8;
+    border-radius: 5px;
+    transition: width 0.5s ease;
+}
+
+.probability-value {
+    min-width: 40px;
+    text-align: left;
+    font-size: 0.85rem;
+}
+
+/* Model Info */
+.model-info {
+    border-top: 1px solid #e0e0e0;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.model-select {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+#model-selector {
+    flex-grow: 1;
+}
+
+/* Recent Predictions */
+.recent-predictions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.prediction-item {
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.prediction-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.prediction-item canvas {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 5px;
+}
+
+.prediction-item .digit {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #17a2b8;
+}
+
+.prediction-item .accuracy {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.empty-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 30px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .draw-container {
+        flex-direction: column;
+    }
+    
+    .canvas-panel, .prediction-panel {
+        width: 100%;
+    }
+} 

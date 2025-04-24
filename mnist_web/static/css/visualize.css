@@ -1,0 +1,607 @@
+/**
+ * Visualize Page Styles
+ * Specific styles for the visualization page of the MNIST web app
+ */
+
+/* Visualization Options Section */
+.visualization-options {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.option-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.option-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.option-group select,
+.option-group input[type="text"],
+.option-group input[type="number"] {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    background-color: white;
+}
+
+.option-group select:focus,
+.option-group input:focus {
+    outline: none;
+    border-color: #4a6cf7;
+    box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
+}
+
+#sample-size-container {
+    margin: 1rem 0;
+    padding: 0.5rem 0;
+}
+
+#sample-size {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.actions-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.btn-primary {
+    background-color: #4a6cf7;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #3a5be0;
+}
+
+.btn-secondary {
+    background-color: #f1f2f4;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background-color: #e5e6e9;
+}
+
+.btn-outline {
+    background-color: transparent;
+    border: 1px solid #4a6cf7;
+    color: #4a6cf7;
+}
+
+.btn-outline:hover {
+    background-color: #f1f4fe;
+}
+
+/* Visualization Result Section */
+.visualization-result {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.result-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.visualization-tabs {
+    display: flex;
+    padding: 0 20px;
+    border-bottom: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+}
+
+.visualization-tab {
+    padding: 12px 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+    color: #6c757d;
+    position: relative;
+}
+
+.visualization-tab:hover {
+    color: #007bff;
+}
+
+.visualization-tab.active {
+    color: #007bff;
+    border-bottom: 2px solid #007bff;
+}
+
+.tab-content {
+    padding: 20px;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+#visualization-placeholder {
+    text-align: center;
+    padding: 3rem 0;
+    color: #888;
+    font-style: italic;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+}
+
+#visualization-loading {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(74, 108, 247, 0.3);
+    border-radius: 50%;
+    border-top-color: #4a6cf7;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+#visualization-container {
+    display: none;
+}
+
+#visualization-content {
+    min-height: 300px;
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+#visualization-caption {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+/* Export Controls */
+.export-controls {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    justify-content: flex-end;
+}
+
+/* Insights Styles */
+.insights-section {
+    background-color: #f8fcff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.insights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.insight-item {
+    background-color: white;
+    padding: 1rem;
+    border-left: 4px solid #4a6cf7;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.insight-item h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #007bff;
+}
+
+.insight-item ul {
+    margin-bottom: 0;
+    padding-left: 20px;
+}
+
+.insight-item li {
+    margin-bottom: 5px;
+}
+
+/* Confusion Matrix Specific Styles */
+#confusion-matrix-plot {
+    margin: 0 auto;
+}
+
+/* Digit Samples Grid */
+.digit-samples-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.digit-sample {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.digit-sample:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.digit-sample img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+.digit-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #444;
+}
+
+.misclassified-labels {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+}
+
+.true-label {
+    color: #4caf50;
+    font-weight: 600;
+}
+
+.pred-label {
+    color: #f44336;
+    font-weight: 600;
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: 2rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Data Section Table */
+#data-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+#data-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+#data-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+}
+
+#data-container th,
+#data-container td {
+    border: 1px solid #dee2e6;
+    padding: 8px 12px;
+    text-align: center;
+}
+
+#data-container th {
+    background-color: #4a6cf7;
+    color: white;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+
+#data-container td.correct {
+    background-color: rgba(76, 175, 80, 0.1);
+    font-weight: 600;
+}
+
+#data-container td.total,
+#data-container td.accuracy {
+    background-color: rgba(74, 108, 247, 0.05);
+    font-weight: 600;
+}
+
+/* Error Message */
+.error-message {
+    padding: 1.5rem;
+    background-color: #fff5f5;
+    border-left: 4px solid #f56565;
+    border-radius: 4px;
+    color: #c53030;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions-row {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .export-controls {
+        flex-direction: column;
+    }
+    
+    .visualization-tabs {
+        overflow-x: auto;
+    }
+    
+    .visualization-tab {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .digit-samples-grid {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    }
+    
+    #data-container {
+        font-size: 0.85rem;
+    }
+}
+
+/* Statistics Section */
+.stats-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4a6cf7;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Model Weights Visualization Styles */
+.architecture-info {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.network-visualization {
+    margin-bottom: 2rem;
+}
+
+.weights-visualization {
+    margin-bottom: 2rem;
+}
+
+.layer-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.layer-tab {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.layer-tab:hover {
+    background-color: #e9ecef;
+}
+
+.layer-tab.active {
+    background-color: #4a6cf7;
+    color: white;
+    border-color: #4a6cf7;
+}
+
+.weight-matrix {
+    margin-bottom: 1.5rem;
+}
+
+.bias-visualization {
+    margin-top: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.weight-explanation {
+    margin-top: 1rem;
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stats-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.stats-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stats-label {
+    font-weight: 500;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.stats-value {
+    font-size: 1rem;
+    color: #333;
+    font-family: monospace;
+}
+
+.weights-stats {
+    margin-bottom: 2rem;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.filter-label {
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+    text-align: center;
+    color: #666;
+}
+
+.neuron-filter {
+    width: 56px;
+    height: 56px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    image-rendering: pixelated;
+}
+
+.sampling-notice {
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+    color: #888;
+    font-style: italic;
+}
+
+.neuron-filters {
+    margin-bottom: 2rem;
+} 

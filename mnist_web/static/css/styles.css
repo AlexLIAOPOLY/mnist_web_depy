@@ -1,0 +1,86 @@
+/* 语言选择器样式 */
+.lang-item {
+    margin-left: auto;
+}
+
+.lang-switcher {
+    display: flex;
+    align-items: center;
+    margin-left: 15px;
+}
+
+.lang-label {
+    margin-right: 5px;
+    color: #333;
+}
+
+.lang-switcher select {
+    padding: 2px 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 0.9em;
+}
+
+.lang-switcher-standalone {
+    display: flex;
+    justify-content: flex-end;
+    margin: 10px 0;
+}
+
+/* 语言切换动画 */
+.lang-changing {
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+    .lang-switcher {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+    
+    .lang-item {
+        margin-left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+/* 下拉菜单样式增强 */
+#lang-select, #fixed-lang-select {
+    cursor: pointer;
+}
+
+#lang-select:hover, #fixed-lang-select:hover {
+    border-color: #007bff;
+}
+
+/* 固定语言选择器样式 */
+.fixed-lang-switcher {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 5px 10px;
+    border-radius: 4px;
+    z-index: 1000;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.fixed-lang-switcher select {
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.fixed-lang-switcher select:focus {
+    outline: none;
+    border-color: #4a9fff;
+} 

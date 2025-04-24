@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绘制与预测 - MNIST 网络应用</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/draw.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/i18n.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="typing-effect" data-i18n="app_title">MNIST 网络应用</h1>
+            <p class="subtitle animate-fadeIn" data-i18n="app_subtitle">交互式神经网络训练与可视化</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="/" onclick="return MNIST.animations.pageTransition('/')" data-i18n="nav_home">首页</a></li>
+                <li><a href="/train" onclick="return MNIST.animations.pageTransition('/train')" data-i18n="nav_train">训练模型</a></li>
+                <li><a href="/draw" class="active" onclick="return MNIST.animations.pageTransition('/draw')" data-i18n="nav_draw">测试预测</a></li>
+                <li><a href="/explore" onclick="return MNIST.animations.pageTransition('/explore')" data-i18n="nav_explore">浏览数据集</a></li>
+                <li><a href="/models" onclick="return MNIST.animations.pageTransition('/models')" data-i18n="nav_models">比较模型</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <section class="draw-section animate-on-scroll" data-animate-once="true">
+                <h2 data-i18n="draw_title">绘制与预测数字</h2>
+                <p data-i18n="draw_subtitle">在下方画布上绘制一个数字(0-9)，并查看模型的预测结果。</p>
+                
+                <div class="draw-container">
+                    <div class="canvas-panel slide-from-left animate-on-scroll" data-animate-once="true">
+                        <div class="drawing-tools">
+                            <button id="clear-canvas" class="button hover-scale" data-i18n="clear_canvas">Clear Canvas</button>
+                            <div class="brush-size">
+                                <label for="brush-size" data-i18n="brush_size">Brush Size:</label>
+                                <input type="range" id="brush-size" min="5" max="30" value="15">
+                            </div>
+                        </div>
+                        
+                        <div class="canvas-wrapper">
+                            <canvas id="drawing-canvas" width="280" height="280" class="hover-bright"></canvas>
+                            <div class="canvas-instructions fade-in animate-on-scroll" data-animate-once="true">
+                                <p data-i18n="draw_instructions">在此处绘制单个数字 (0-9)</p>
+                            </div>
+                        </div>
+                        
+                        <div class="canvas-actions">
+                            <button id="predict-button" class="button primary animate-pulse" data-i18n="predict_digit">预测数字</button>
+                            <button id="save-image" class="button secondary hover-scale" data-i18n="save_image">保存图像</button>
+                        </div>
+                    </div>
+                    
+                    <div class="prediction-panel slide-from-right animate-on-scroll" data-animate-once="true">
+                        <h3 data-i18n="prediction_result">预测结果</h3>
+                        
+                        <div class="prediction-result">
+                            <h4 data-i18n="predicted_digit">预测的数字:</h4>
+                            <div id="predicted-digit" class="predicted-digit">?</div>
+                            <p id="confidence-text" data-i18n="draw_prompt">绘制并点击"预测"查看结果</p>
+                        </div>
+                        
+                        <div class="probabilities-container animate-on-scroll" data-animate-once="true">
+                            <h4 data-i18n="probability_distribution">概率分布:</h4>
+                            <div id="probabilities" class="probability-bars">
+                                <!-- Probability bars will be inserted here by JavaScript -->
+                                <div class="probability-item stagger-item animate-scaleUp">
+                                    <span class="digit-label">0:</span>
+                                    <div class="probability-bar-container">
+                                        <div class="probability-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="probability-value">0%</span>
+                                </div>
+                                <!-- Repeat for digits 1-9 -->
+                                <div class="probability-item stagger-item animate-scaleUp">
+                                    <span class="digit-label">1:</span>
+                                    <div class="probability-bar-container">
+                                        <div class="probability-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="probability-value">0%</span>
+                                </div>
+                                <div class="probability-item stagger-item animate-scaleUp">
+                                    <span class="digit-label">2:</span>
+                                    <div class="probability-bar-container">
+                                        <div class="probability-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="probability-value">0%</span>
+                                </div>
+                                <div class="probability-item stagger-item animate-scaleUp">
+                                    <span class="digit-label">3:</span>
+                                    <div class="probability-bar-container">
+                                        <div class="probability-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="probability-value">0%</span>
+                                </div>
+                                <div class="probability-item stagger-item animate-scaleUp">
+                                    <span class="digit-label">4:</span>
+                                    <div class="probability-bar-container">
+                                        <div class="probability-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="probability-value">0%</span>
+                                </div>
+                                <div class="probability-item stagger-item animate-scaleUp">
+                                    <span class="digit-label">5:</span>
+                                    <div class="probability-bar-container">
+                                        <div class="probability-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="probability-value">0%</span>
+                                </div>
+                                <div class="probability-item stagger-item animate-scaleUp">
+                                    <span class="digit-label">6:</span>
+                                    <div class="probability-bar-container">
+                                        <div class="probability-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="probability-value">0%</span>
+                                </div>
+                                <div class="probability-item stagger-item animate-scaleUp">
+                                    <span class="digit-label">7:</span>
+                                    <div class="probability-bar-container">
+                                        <div class="probability-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="probability-value">0%</span>
+                                </div>
+                                <div class="probability-item stagger-item animate-scaleUp">
+                                    <span class="digit-label">8:</span>
+                                    <div class="probability-bar-container">
+                                        <div class="probability-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="probability-value">0%</span>
+                                </div>
+                                <div class="probability-item stagger-item animate-scaleUp">
+                                    <span class="digit-label">9:</span>
+                                    <div class="probability-bar-container">
+                                        <div class="probability-bar" style="width: 0%"></div>
+                                    </div>
+                                    <span class="probability-value">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="model-info fade-in animate-on-scroll" data-animate-once="true">
+                            <h4 data-i18n="current_model">当前模型:</h4>
+                            <div id="current-model-info">
+                                <p><strong data-i18n="model_type">模型类型:</strong> <span id="model-type">简单神经网络</span></p>
+                                <p><strong data-i18n="model_accuracy">准确率:</strong> <span id="model-accuracy">-</span></p>
+                                <p><strong data-i18n="model_trained">训练时间:</strong> <span id="model-trained">-</span></p>
+                            </div>
+                            <div class="model-select">
+                                <label for="model-selector" data-i18n="select_model">选择模型:</label>
+                                <select id="model-selector" class="hover-scale">
+                                    <option value="latest" data-i18n="latest_model">最新模型</option>
+                                    <option value="best" data-i18n="best_model">最佳精度模型</option>
+                                    <!-- 其他模型将动态添加 -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="recent-predictions animate-on-scroll" data-animate-once="true">
+                <h3 data-i18n="recent_predictions">最近预测</h3>
+                <div id="recent-predictions-container" class="recent-predictions-grid">
+                    <!-- Recent predictions will be inserted here by JavaScript -->
+                    <p class="empty-message" data-i18n="no_predictions">还没有预测记录。绘制一个数字并点击"预测"开始。</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="animate-on-scroll" data-animate-once="true">
+            <p><span data-i18n="footer_copyright">&copy; 2023 MNIST 网络应用. 使用</span> <a href="https://flask.palletsprojects.com/" target="_blank">Flask</a> <span data-i18n="and">和</span> <a href="https://www.tensorflow.org/" target="_blank">TensorFlow</a> <span>构建</span>.</p>
+            <p><span data-i18n="footer_source">源代码可在</span> <a href="https://github.com/your-username/mnist-web-app" target="_blank">GitHub</a> <span>获取</span>.</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/draw.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+    
+    <script>
+        // 为概率条形图添加动画效果
+        document.addEventListener('DOMContentLoaded', () => {
+            // 预测按钮的点击事件增加动画
+            const predictButton = document.getElementById('predict-button');
+            if (predictButton) {
+                predictButton.addEventListener('click', () => {
+                    // 添加一个短暂的脉冲动画
+                    predictButton.classList.add('animate-pulse');
+                    setTimeout(() => {
+                        predictButton.classList.remove('animate-pulse');
+                    }, 1000);
+                    
+                    // 当预测结果显示时，为概率条添加动画
+                    const probItems = document.querySelectorAll('.probability-item');
+                    probItems.forEach((item, index) => {
+                        setTimeout(() => {
+                            item.classList.add('animated');
+                        }, 200 + (index * 50));
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

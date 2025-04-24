@@ -1,0 +1,1 @@
+web: gunicorn 'mnist_web.app:app' --workers 2 --timeout 60 

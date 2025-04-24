@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Models - MNIST Web App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/models.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* 确保模态窗口样式正确加载 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        
+        .modal-content {
+            position: relative;
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 80%;
+            max-width: 800px;
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from {opacity: 0; transform: translateY(-20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            border-radius: 8px 8px 0 0;
+            background-color: #f7f7f7;
+        }
+        
+        .modal-body {
+            padding: 24px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s;
+        }
+        
+        .close-btn:hover {
+            color: #000;
+        }
+        
+        .model-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        
+        @media (max-width: 768px) {
+            .model-details {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .info-grid > div {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .metric-chart {
+            height: 200px;
+        }
+        
+        .versions-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        
+        .version-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .version-item:last-child {
+            border-bottom: none;
+        }
+        
+        .version-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .version-metrics {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .export-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .export-option:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .export-option input {
+            margin-top: 4px;
+        }
+        
+        .export-option h4 {
+            margin: 0 0 4px 0;
+        }
+        
+        .export-option p {
+            margin: 0;
+            color: #666;
+        }
+        
+        .export-settings {
+            display: flex;
+            gap: 20px;
+            margin: 12px 0;
+        }
+        
+        .export-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 16px;
+        }
+    </style>
+    <script>
+        // 注册Matrix图表类型
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Chart !== 'undefined') {
+                // 扩展散点图控制器以创建矩阵图表
+                Chart.defaults.matrix = Chart.defaults.scatter;
+                
+                Chart.controllers.matrix = Chart.controllers.scatter.extend({
+                    draw: function() {
+                        var meta = this.getMeta();
+                        var dataset = this.getDataset();
+                        var data = meta.data || [];
+                        
+                        // 确保我们有正确的维度
+                        if (!dataset.width || !dataset.height) {
+                            console.warn('Matrix图表需要width和height属性');
+                            return;
+                        }
+                        
+                        var cellWidth = this.chart.width / dataset.width;
+                        var cellHeight = this.chart.height / dataset.height;
+                        
+                        // 绘制每个单元格
+                        for (var i = 0; i < data.length; i++) {
+                            var x = i % dataset.width;
+                            var y = Math.floor(i / dataset.width);
+                            
+                            var value = dataset.data[i] || 0;
+                            var color = dataset.backgroundColor;
+                            
+                            // 如果backgroundColor是函数，调用它
+                            if (typeof color === 'function') {
+                                color = color({
+                                    dataIndex: i,
+                                    dataset: dataset,
+                                    datasetIndex: meta.index,
+                                    value: value
+                                });
+                            }
+                            
+                            // 绘制矩形
+                            var ctx = this.chart.ctx;
+                            ctx.save();
+                            ctx.fillStyle = color;
+                            ctx.fillRect(x * cellWidth, y * cellHeight, cellWidth, cellHeight);
+                            
+                            // 添加文本
+                            if (value > 0) {
+                                ctx.fillStyle = '#fff';
+                                ctx.font = '10px Arial';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                ctx.fillText(value, (x + 0.5) * cellWidth, (y + 0.5) * cellHeight);
+                            }
+                            
+                            ctx.restore();
+                        }
+                    }
+                });
+                
+                console.log('已注册Matrix图表类型');
+            } else {
+                console.warn('无法注册Matrix图表类型，Chart.js未加载');
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="typing-effect">MNIST Web Application</h1>
+            <p class="subtitle animate-fadeIn">Interactive Neural Network Training & Visualization</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="/" onclick="return MNIST.animations.pageTransition('/')">Home</a></li>
+                <li><a href="/train" onclick="return MNIST.animations.pageTransition('/train')">Train Model</a></li>
+                <li><a href="/draw" onclick="return MNIST.animations.pageTransition('/draw')">Test Predictions</a></li>
+                <li><a href="/explore" onclick="return MNIST.animations.pageTransition('/explore')">Explore Dataset</a></li>
+                <li><a href="/visualize" onclick="return MNIST.animations.pageTransition('/visualize')">Visualize</a></li>
+                <li><a href="/models" class="active" onclick="return MNIST.animations.pageTransition('/models')">Compare Models</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <section class="models-section animate-on-scroll" data-animate-once="true">
+                <div class="models-header">
+                    <h2>Compare Model Performance</h2>
+                    <div class="models-actions">
+                        <div class="search-sort-container">
+                            <input type="text" id="model-search" class="search-input" placeholder="Search models...">
+                            <select id="sort-models" class="sort-select">
+                                <option value="accuracy">Sort by Accuracy</option>
+                                <option value="loss">Sort by Loss</option>
+                                <option value="date">Sort by Date</option>
+                                <option value="name">Sort by Name</option>
+                            </select>
+                            <button id="sort-direction" class="btn btn-icon" title="Toggle sort direction">
+                                <i class="fas fa-sort-amount-down"></i>
+                            </button>
+                        </div>
+                        <button id="refresh-models" class="btn btn-primary">
+                            <i class="fas fa-sync"></i> Refresh Models
+                        </button>
+                    </div>
+                </div>
+                <p>Compare different neural network architectures and their performance on the MNIST dataset.</p>
+                
+                <div class="models-container">
+                    <div class="models-list-container slide-from-left animate-on-scroll" data-animate-once="true">
+                        <h3>Saved Models</h3>
+                        <p class="empty-message">No models have been trained yet. Go to the <a href="/train" onclick="return MNIST.animations.pageTransition('/train')">Train</a> page to create your first model.</p>
+                        <div class="models-list">
+                            <!-- Model items will be dynamically generated -->
+                        </div>
+                    </div>
+                    
+                    <div class="charts-container slide-from-right animate-on-scroll" data-animate-once="true">
+                        <div class="chart-box">
+                            <h3>Accuracy Comparison</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="accuracy-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-box">
+                            <h3>Loss Comparison</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="loss-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-box full-width">
+                            <h3>Training Progress</h3>
+                            <div class="chart-wrapper">
+                                <canvas id="training-progress-chart"></canvas>
+                            </div>
+                            <div class="chart-controls">
+                                <div class="metric-toggles">
+                                    <label>
+                                        <input type="checkbox" value="accuracy" checked> Accuracy
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" value="loss" checked> Loss
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" value="val_accuracy" checked> Validation Accuracy
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" value="val_loss" checked> Validation Loss
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-box">
+                            <h3>Confusion Matrix</h3>
+                            <div class="chart-wrapper confusion-matrix-wrapper">
+                                <canvas id="confusion-matrix-chart"></canvas>
+                            </div>
+                            <div class="model-selector">
+                                <select id="confusion-matrix-model">
+                                    <option value="">Select a model</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="additional-info animate-on-scroll" data-animate-once="true">
+                <h3>About Model Comparison</h3>
+                <p>This page allows you to compare different models you've trained on the MNIST dataset. Select multiple models to visualize their performance metrics side by side.</p>
+                <p>You can compare:</p>
+                <ul>
+                    <li>Different neural network architectures</li>
+                    <li>Models trained with different hyperparameters</li>
+                    <li>Effects of training data size on model performance</li>
+                </ul>
+                <p>For each model, you can also view detailed information including confusion matrices to better understand prediction patterns.</p>
+            </section>
+        </main>
+
+        <footer class="animate-on-scroll" data-animate-once="true">
+            <p>&copy; 2023 MNIST Web App. Built with <a href="https://flask.palletsprojects.com/" target="_blank">Flask</a> and <a href="https://www.chartjs.org/" target="_blank">Chart.js</a>.</p>
+            <p>Source code available on <a href="https://github.com/your-username/mnist-web-app" target="_blank">GitHub</a>.</p>
+        </footer>
+    </div>
+
+    <!-- Model Details Modal -->
+    <div id="modelDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modelDetailsTitle">Model Details</h3>
+                <div class="modal-actions">
+                    <button class="btn btn-sm btn-primary" onclick="showExportModal(document.getElementById('exportModelId').value)">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="close-btn" onclick="hideModelDetails()">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="model-details">
+                    <div class="model-info-section">
+                        <h4>Model Information</h4>
+                        <div id="modelInfo" class="info-grid">
+                            <!-- Model info will be dynamically loaded -->
+                        </div>
+                    </div>
+
+                    <div class="model-hyperparams-section">
+                        <h4>Hyperparameters</h4>
+                        <div id="hyperparameters" class="info-grid">
+                            <!-- Hyperparameters will be dynamically loaded -->
+                        </div>
+                    </div>
+
+                    <div class="model-performance-section">
+                        <h4>Performance Metrics</h4>
+                        <div class="metrics-grid">
+                            <div class="metric-chart">
+                                <canvas id="accuracyChart"></canvas>
+                            </div>
+                            <div class="metric-chart">
+                                <canvas id="lossChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="model-versions-section">
+                        <h4>Version History</h4>
+                        <div id="versionsList" class="versions-list">
+                            <!-- Version items will be dynamically loaded -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="exportModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Export Model</h3>
+                <button class="close-btn" onclick="hideExportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="export-options">
+                    <input type="hidden" id="exportModelId" value="">
+                    <div class="export-option">
+                        <input type="radio" name="exportFormat" id="format-pickle" value="pickle" checked>
+                        <label for="format-pickle">
+                            <h4>Pickle Format (.pkl)</h4>
+                            <p>Standard Python serialization format. Best for Python applications.</p>
+                        </label>
+                    </div>
+                    <div class="export-option">
+                        <input type="radio" name="exportFormat" id="format-onnx" value="onnx">
+                        <label for="format-onnx">
+                            <h4>ONNX Format (.onnx)</h4>
+                            <p>Open Neural Network Exchange format. Best for cross-platform compatibility.</p>
+                        </label>
+                    </div>
+                    <div class="export-option">
+                        <input type="radio" name="exportFormat" id="format-json" value="json">
+                        <label for="format-json">
+                            <h4>JSON Format (.json)</h4>
+                            <p>Export model architecture and weights as JSON. Best for web applications.</p>
+                        </label>
+                    </div>
+                    <div class="export-settings">
+                        <label>
+                            <input type="checkbox" id="includeHistory">
+                            Include training history
+                        </label>
+                        <label>
+                            <input type="checkbox" id="includeMetadata">
+                            Include metadata
+                        </label>
+                    </div>
+                    <div class="export-actions">
+                        <button class="btn btn-primary" onclick="exportModel()">Export</button>
+                        <button class="btn btn-secondary" onclick="hideExportModal()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/models.js') }}"></script>
+
+    <!-- 直接处理模型显示的应急脚本 -->
+    <script>
+        // 立即执行的应急函数 - 如果常规JS失败，这将确保模型能显示
+        setTimeout(function() {
+            console.log("应急函数：尝试获取和显示模型");
+            
+            // 检查模型列表是否为空
+            const modelsList = document.querySelector('.models-list');
+            if (modelsList && modelsList.children.length === 0) {
+                console.log("模型列表为空，尝试直接从API获取");
+                
+                fetch('/api/models')
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("应急API响应:", data);
+                        
+                        if (data.status === 'success' && data.models && Array.isArray(data.models) && data.models.length > 0) {
+                            console.log("找到模型，隐藏空消息");
+                            
+                            // 隐藏空消息
+                            const emptyMsg = document.querySelector('.empty-message');
+                            if (emptyMsg) {
+                                emptyMsg.style.display = 'none';
+                            }
+                            
+                            // 准备模型数据
+                            const models = data.models.map(model => {
+                                return {
+                                    id: model.id,
+                                    name: model.name || `Model ${model.id.substring(0, 8)}`,
+                                    accuracy: (model.performance && model.performance.accuracy) ? model.performance.accuracy * 100 : 0,
+                                    hidden_size: model.params && model.params.hidden_size ? model.params.hidden_size : 'N/A',
+                                    activation: model.params && model.params.activation ? model.params.activation : 'N/A'
+                                };
+                            });
+                            
+                            // 按准确度排序
+                            models.sort((a, b) => b.accuracy - a.accuracy);
+                            
+                            // 创建HTML
+                            const html = models.map(model => `
+                                <div class="model-item" data-id="${model.id}">
+                                    <div class="model-header">
+                                        <input type="checkbox" class="model-checkbox">
+                                        <h4 class="model-name">${model.name}</h4>
+                                    </div>
+                                    <div class="model-details">
+                                        <div class="model-metrics">
+                                            <div class="metric">
+                                                <span class="metric-label">Accuracy:</span>
+                                                <span class="metric-value">${model.accuracy.toFixed(2)}%</span>
+                                            </div>
+                                            <div class="metric">
+                                                <span class="metric-label">Hidden Size:</span>
+                                                <span class="metric-value">${model.hidden_size}</span>
+                                            </div>
+                                            <div class="metric">
+                                                <span class="metric-label">Activation:</span>
+                                                <span class="metric-value">${model.activation}</span>
+                                            </div>
+                                        </div>
+                                        <div class="model-actions">
+                                            <button class="btn btn-sm view-details-btn" data-id="${model.id}" onclick="showModelDetails('${model.id}')">
+                                                <i class="fas fa-info-circle"></i> Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('');
+                            
+                            // 添加到页面
+                            modelsList.innerHTML = html;
+                            
+                            // 初始化图表
+                            initEmergencyCharts(models);
+                            
+                            // 添加点击事件处理
+                            modelsList.querySelectorAll('.view-details-btn').forEach(btn => {
+                                btn.addEventListener('click', function() {
+                                    const modelId = this.getAttribute('data-id');
+                                    showModelDetails(modelId);
+                                });
+                            });
+                            
+                            // 添加复选框事件处理
+                            modelsList.querySelectorAll('.model-checkbox').forEach(checkbox => {
+                                checkbox.addEventListener('change', function() {
+                                    const modelId = this.closest('.model-item').getAttribute('data-id');
+                                    const model = models.find(m => m.id === modelId);
+                                    if (model) {
+                                        updateEmergencyCharts(models, modelsList);
+                                    }
+                                });
+                            });
+                            
+                            console.log("已添加模型列表到页面并初始化图表");
+                        }
+                    })
+                    .catch(err => console.error("应急获取模型失败:", err));
+            }
+        }, 1000); // 给主JS 1秒钟的时间来加载和处理
+        
+        // 初始化应急图表
+        function initEmergencyCharts(models) {
+            const accuracyChartEl = document.getElementById('accuracy-chart');
+            const lossChartEl = document.getElementById('loss-chart');
+            
+            if (accuracyChartEl && typeof Chart !== 'undefined') {
+                new Chart(accuracyChartEl, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Accuracy',
+                            data: [],
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: 'Accuracy (%)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Model Accuracy Comparison'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            if (lossChartEl && typeof Chart !== 'undefined') {
+                new Chart(lossChartEl, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Loss',
+                            data: [],
+                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Loss'
+                                }
+                            }
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Model Loss Comparison'
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // 初始更新图表
+            updateEmergencyCharts(models, document.querySelector('.models-list'));
+        }
+        
+        // 更新应急图表
+        function updateEmergencyCharts(models, modelsList) {
+            const checkedModels = Array.from(modelsList.querySelectorAll('.model-checkbox:checked'))
+                .map(checkbox => {
+                    const modelId = checkbox.closest('.model-item').getAttribute('data-id');
+                    return models.find(m => m.id === modelId);
+                })
+                .filter(model => model);
+                
+            const accuracyChart = Chart.getChart(document.getElementById('accuracy-chart'));
+            const lossChart = Chart.getChart(document.getElementById('loss-chart'));
+            
+            if (accuracyChart) {
+                accuracyChart.data.labels = checkedModels.map(m => m.name);
+                accuracyChart.data.datasets[0].data = checkedModels.map(m => m.accuracy);
+                accuracyChart.update();
+            }
+            
+            if (lossChart && models[0].loss !== undefined) {
+                lossChart.data.labels = checkedModels.map(m => m.name);
+                lossChart.data.datasets[0].data = checkedModels.map(m => m.loss || 0);
+                lossChart.update();
+            }
+        }
+        
+        // 显示模型详细信息
+        function showModelDetails(modelId) {
+            console.log("显示模型详情:", modelId);
+            
+            // 首先显示模态窗口
+            const modal = document.getElementById('modelDetailsModal');
+            if (modal) {
+                modal.style.display = 'block';
+                document.getElementById('exportModelId').value = modelId;
+                document.getElementById('modelDetailsTitle').textContent = `Model Details: ${modelId.substring(0, 8)}`;
+                
+                // 获取模型详细信息
+                fetch(`/api/models/${modelId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            const model = data.model;
+                            
+                            // 填充基础信息
+                            document.getElementById('modelInfo').innerHTML = `
+                                <div><span>ID:</span> <span>${model.id}</span></div>
+                                <div><span>Name:</span> <span>${model.name || 'Unnamed Model'}</span></div>
+                                <div><span>Created:</span> <span>${new Date(model.created_at).toLocaleString()}</span></div>
+                                <div><span>Accuracy:</span> <span>${(model.performance?.accuracy * 100 || 0).toFixed(2)}%</span></div>
+                                <div><span>Loss:</span> <span>${model.performance?.loss?.toFixed(4) || 'N/A'}</span></div>
+                                <div><span>Architecture:</span> <span>MLP</span></div>
+                            `;
+                            
+                            // 填充超参数
+                            if (model.params) {
+                                document.getElementById('hyperparameters').innerHTML = `
+                                    <div><span>Hidden Size:</span> <span>${model.params.hidden_size || 'N/A'}</span></div>
+                                    <div><span>Activation:</span> <span>${model.params.activation || 'N/A'}</span></div>
+                                    <div><span>Learning Rate:</span> <span>${model.params.learning_rate || 'N/A'}</span></div>
+                                    <div><span>Batch Size:</span> <span>${model.params.batch_size || 'N/A'}</span></div>
+                                    <div><span>Epochs:</span> <span>${model.params.epochs || 'N/A'}</span></div>
+                                    <div><span>Training Size:</span> <span>${model.params.train_size || 'N/A'}</span></div>
+                                `;
+                            }
+                            
+                            // 获取并显示版本历史
+                            fetch(`/api/models/${modelId}/versions`)
+                                .then(response => response.json())
+                                .then(versionData => {
+                                    if (versionData.status === 'success') {
+                                        const versions = versionData.versions;
+                                        document.getElementById('versionsList').innerHTML = versions.map(version => `
+                                            <div class="version-item">
+                                                <div class="version-header">
+                                                    <div>Version ${version.version}</div>
+                                                    <div>${new Date(version.timestamp).toLocaleString()}</div>
+                                                </div>
+                                                <div class="version-metrics">
+                                                    <div>Accuracy: ${(version.accuracy * 100).toFixed(2)}%</div>
+                                                    <div>Loss: ${version.loss?.toFixed(4) || 'N/A'}</div>
+                                                </div>
+                                            </div>
+                                        `).join('');
+                                    }
+                                })
+                                .catch(err => console.error("获取版本历史失败:", err));
+                            
+                            // 获取并显示指标图表
+                            initializeMetricsCharts(modelId);
+                        }
+                    })
+                    .catch(err => console.error("获取模型详情失败:", err));
+            }
+        }
+        
+        // 初始化指标图表
+        function initializeMetricsCharts(modelId) {
+            // 获取模型指标
+            fetch(`/api/models/${modelId}/metrics`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        const metrics = data.metrics;
+                        
+                        // 创建准确度图表
+                        const accuracyCtx = document.getElementById('accuracyChart');
+                        if (accuracyCtx && metrics.accuracy_history) {
+                            const accuracyChart = new Chart(accuracyCtx, {
+                                type: 'line',
+                                data: {
+                                    labels: Array.from({length: metrics.accuracy_history.length}, (_, i) => i + 1),
+                                    datasets: [{
+                                        label: 'Training Accuracy',
+                                        data: metrics.accuracy_history.map(acc => acc * 100),
+                                        borderColor: 'rgba(54, 162, 235, 1)',
+                                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                        borderWidth: 2,
+                                        tension: 0.2,
+                                        fill: true
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            max: 100,
+                                            title: {
+                                                display: true,
+                                                text: 'Accuracy (%)'
+                                            }
+                                        },
+                                        x: {
+                                            title: {
+                                                display: true,
+                                                text: 'Epoch'
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                        
+                        // 创建损失图表
+                        const lossCtx = document.getElementById('lossChart');
+                        if (lossCtx && metrics.loss_history) {
+                            const lossChart = new Chart(lossCtx, {
+                                type: 'line',
+                                data: {
+                                    labels: Array.from({length: metrics.loss_history.length}, (_, i) => i + 1),
+                                    datasets: [{
+                                        label: 'Training Loss',
+                                        data: metrics.loss_history,
+                                        borderColor: 'rgba(255, 99, 132, 1)',
+                                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                        borderWidth: 2,
+                                        tension: 0.2,
+                                        fill: true
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            title: {
+                                                display: true,
+                                                text: 'Loss'
+                                            }
+                                        },
+                                        x: {
+                                            title: {
+                                                display: true,
+                                                text: 'Epoch'
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+                })
+                .catch(err => console.error("获取模型指标失败:", err));
+        }
+        
+        // 隐藏模型详情
+        function hideModelDetails() {
+            const modal = document.getElementById('modelDetailsModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        // 显示导出模态窗口
+        function showExportModal(modelId) {
+            document.getElementById('exportModelId').value = modelId;
+            document.getElementById('exportModal').style.display = 'block';
+        }
+        
+        // 隐藏导出模态窗口
+        function hideExportModal() {
+            document.getElementById('exportModal').style.display = 'none';
+        }
+        
+        // 导出模型
+        function exportModel() {
+            const modelId = document.getElementById('exportModelId').value;
+            const format = document.querySelector('input[name="exportFormat"]:checked').value;
+            const includeHistory = document.getElementById('includeHistory').checked;
+            const includeMetadata = document.getElementById('includeMetadata').checked;
+            
+            fetch(`/api/models/${modelId}/export`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    format: format,
+                    include_history: includeHistory,
+                    include_metadata: includeMetadata
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.href = data.download_url;
+                    hideExportModal();
+                } else {
+                    console.error("导出失败:", data.message);
+                }
+            })
+            .catch(err => console.error("导出请求失败:", err));
+        }
+    </script>
+</body>
+</html> 

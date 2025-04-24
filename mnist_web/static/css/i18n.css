@@ -1,0 +1,65 @@
+/* 语言选择器样式 */
+.lang-switcher {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.lang-label {
+    margin-right: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+    color: #333;
+}
+
+#lang-select {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: #333;
+    font-size: 14px;
+    padding: 4px 8px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+#lang-select:hover {
+    background-color: #f5f5f5;
+    border-color: #999;
+}
+
+#lang-select option {
+    background-color: white;
+    color: #333;
+}
+
+/* 头部语言选择器 */
+.header-lang-switcher {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    background-color: transparent;
+}
+
+/* 媒体查询 - 移动端适配 */
+@media (max-width: 768px) {
+    .header-lang-switcher {
+        top: 5px;
+        right: 5px;
+    }
+    
+    .lang-switcher {
+        justify-content: center;
+    }
+}
+
+/* 语言切换动画 */
+[data-i18n] {
+    transition: opacity 0.2s ease;
+}
+
+.lang-changing [data-i18n] {
+    opacity: 0.7;
+} 

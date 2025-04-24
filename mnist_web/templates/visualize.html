@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MNIST Visualizations</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/visualize.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>MNIST Explorer</h1>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Home</a></li>
+                        <li><a href="{{ url_for('train') }}">Train</a></li>
+                        <li><a href="{{ url_for('explore') }}">Explore Dataset</a></li>
+                        <li><a href="{{ url_for('visualize') }}" class="active">Visualize</a></li>
+                        <li><a href="{{ url_for('test') }}">Test</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <section class="section-intro">
+                <h2>Model & Dataset Visualizations</h2>
+                <p>Explore different visualizations of the MNIST dataset and model performance. Select your options below to generate visualizations.</p>
+            </section>
+
+            <section class="visualization-options">
+                <div class="options-grid">
+                    <div class="option-group">
+                        <label for="visualization-type">Visualization Type</label>
+                        <select id="visualization-type">
+                            <option value="confusion-matrix">Confusion Matrix</option>
+                            <option value="digit-samples">Digit Samples</option>
+                            <option value="prediction-confidence">Prediction Confidence</option>
+                            <option value="tsne">t-SNE Visualization</option>
+                            <option value="misclassified">Misclassified Examples</option>
+                            <option value="model-weights">Model Weights & Parameters</option>
+                        </select>
+                    </div>
+
+                    <div class="option-group">
+                        <label for="model-select">Model</label>
+                        <select id="model-select">
+                            <option value="loading">Loading models...</option>
+                        </select>
+                    </div>
+
+                    <div class="option-group" id="dataset-select-container">
+                        <label for="dataset-select">Dataset</label>
+                        <select id="dataset-select">
+                            <option value="test">Test Set</option>
+                            <option value="train">Training Set</option>
+                        </select>
+                    </div>
+
+                    <div class="option-group" id="digit-select-container">
+                        <label for="digit-select">Digit</label>
+                        <select id="digit-select">
+                            <option value="all">All Digits</option>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="sample-size-container" style="display: none;">
+                    <label for="sample-size">Sample Size: <span id="sample-size-value">100</span></label>
+                    <input type="range" id="sample-size" min="10" max="1000" step="10" value="100">
+                </div>
+
+                <div class="actions-row">
+                    <button id="generate-btn" class="btn btn-primary">Generate Visualization</button>
+                    <button id="reset-options-btn" class="btn btn-secondary">Reset Options</button>
+                </div>
+            </section>
+
+            <section class="visualization-result">
+                <div class="result-header">
+                    <h3 id="visualization-title">Visualization Results</h3>
+                </div>
+
+                <div id="visualization-placeholder">
+                    <p>Select visualization options and click "Generate Visualization" to see results here.</p>
+                </div>
+
+                <div id="visualization-container">
+                    <div id="visualization-content"></div>
+                    <div id="visualization-caption"></div>
+                    <div id="visualization-loading">
+                        <div class="loading-spinner"></div>
+                    </div>
+
+                    <div class="export-controls">
+                        <button id="export-image-btn" class="btn btn-outline">Export as Image</button>
+                        <button id="export-data-btn" class="btn btn-outline">Export Data</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="insights-section" style="display: none;">
+                <h3>Insights</h3>
+                <div class="insights-list" id="insights-list">
+                    <!-- Insights will be added dynamically -->
+                </div>
+            </section>
+
+            <section id="data-section" style="display: none;">
+                <h3>Visualization Data</h3>
+                <div id="data-container"></div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 MNIST Explorer. A web-based tool for exploring and visualizing the MNIST dataset and models.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/visualize.js') }}"></script>
+</body>
+</html> 

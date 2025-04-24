@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Model - MNIST Web App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/train.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/i18n.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="typing-effect" data-i18n="app_title">MNIST Web Application</h1>
+            <p class="subtitle animate-fadeIn" data-i18n="app_subtitle">Interactive Neural Network Training & Visualization</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="/" onclick="return MNIST.animations.pageTransition('/')" data-i18n="nav_home">Home</a></li>
+                <li><a href="/train" class="active" onclick="return MNIST.animations.pageTransition('/train')" data-i18n="nav_train">Train Model</a></li>
+                <li><a href="/draw" onclick="return MNIST.animations.pageTransition('/draw')" data-i18n="nav_draw">Test Predictions</a></li>
+                <li><a href="/explore" onclick="return MNIST.animations.pageTransition('/explore')" data-i18n="nav_explore">Explore Dataset</a></li>
+                <li><a href="/models" onclick="return MNIST.animations.pageTransition('/models')" data-i18n="nav_models">Compare Models</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <section class="train-section animate-on-scroll" data-animate-once="true">
+                <h2 data-i18n="train_title">Train Neural Network Model</h2>
+                <p data-i18n="train_subtitle">Customize the parameters and start training a model on the MNIST dataset.</p>
+                
+                <div class="train-container">
+                    <div class="parameters-panel slide-from-left animate-on-scroll" data-animate-once="true">
+                        <h3 data-i18n="train_params">Training Parameters</h3>
+                        <form id="training-form" class="training-form">
+                            <div class="form-group fade-in animate-on-scroll" data-animate-once="true">
+                                <label for="epochs" data-i18n="epochs">Epochs:</label>
+                                <input type="number" id="epochs" name="epochs" min="1" max="50" value="10" class="hover-scale">
+                            </div>
+                            
+                            <div class="form-group fade-in animate-on-scroll" data-animate-once="true">
+                                <label for="batch-size" data-i18n="batch_size">Batch Size:</label>
+                                <input type="number" id="batch-size" name="batch_size" min="8" max="256" step="8" value="32" class="hover-scale">
+                            </div>
+                            
+                            <div class="form-group fade-in animate-on-scroll" data-animate-once="true">
+                                <label for="learning-rate" data-i18n="learning_rate">Learning Rate:</label>
+                                <input type="number" id="learning-rate" name="learning_rate" min="0.0001" max="0.1" step="0.0001" value="0.001" class="hover-scale">
+                            </div>
+                            
+                            <div class="form-group fade-in animate-on-scroll" data-animate-once="true">
+                                <label for="hidden-layer-size" data-i18n="hidden_size">Hidden Layer Size:</label>
+                                <input type="number" id="hidden-layer-size" name="hidden_layer_size" min="32" max="512" step="32" value="128" class="hover-scale">
+                            </div>
+                            
+                            <div class="form-group fade-in animate-on-scroll" data-animate-once="true">
+                                <label for="activation" data-i18n="activation">Activation Function:</label>
+                                <select id="activation" name="activation" class="hover-scale">
+                                    <option value="relu">ReLU</option>
+                                    <option value="sigmoid">Sigmoid</option>
+                                    <option value="tanh">Tanh</option>
+                                </select>
+                            </div>
+                            
+                            <div class="button-group fade-in animate-on-scroll" data-animate-once="true">
+                                <button type="button" id="start-training" class="button primary" data-i18n="start_training_btn">Start Training</button>
+                                <button type="button" id="stop-training" class="button secondary" disabled data-i18n="stop_training_btn">Stop Training</button>
+                                <button type="button" id="reset-model" class="button" data-i18n="reset_model">Reset Model</button>
+                            </div>
+                        </form>
+                        
+                        <div class="training-status animate-on-scroll" data-animate-once="true">
+                            <h3 data-i18n="training_status">Training Status</h3>
+                            <div class="status-item">
+                                <span class="status-label" data-i18n="status_label">Status:</span>
+                                <span id="training-status-value">Not started</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label" data-i18n="current_epoch">Current Epoch:</span>
+                                <span id="current-epoch">0/0</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label" data-i18n="best_accuracy">Best Accuracy:</span>
+                                <span id="best-accuracy">0%</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-label" data-i18n="current_loss">Current Loss:</span>
+                                <span id="current-loss">-</span>
+                            </div>
+                            <div class="progress-container">
+                                <span class="status-label" data-i18n="progress">Progress:</span>
+                                <div class="progress-bar-container">
+                                    <div id="progress-bar" class="progress-bar"></div>
+                                </div>
+                                <span id="progress-percentage">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="visualization-panel slide-from-right animate-on-scroll" data-animate-once="true">
+                        <h3 data-i18n="training_visualization">Training Visualization</h3>
+                        <div class="chart-container fade-in animate-on-scroll" data-animate-once="true">
+                            <canvas id="accuracy-chart"></canvas>
+                        </div>
+                        <div class="chart-container fade-in animate-on-scroll" data-animate-once="true">
+                            <canvas id="loss-chart"></canvas>
+                        </div>
+                        
+                        <div class="sample-predictions animate-on-scroll" data-animate-once="true">
+                            <h3 data-i18n="sample_predictions">Sample Predictions</h3>
+                            <p data-i18n="sample_predictions_desc">See how the model performs on random test samples as it trains:</p>
+                            <div id="sample-predictions-container" class="sample-grid">
+                                <!-- Sample predictions will be inserted here by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="animate-on-scroll" data-animate-once="true">
+            <p><span data-i18n="footer_copyright">&copy; 2023 MNIST Web App. Built with</span> <a href="https://flask.palletsprojects.com/" target="_blank">Flask</a> <span data-i18n="and">and</span> <a href="https://www.chartjs.org/" target="_blank">Chart.js</a>.</p>
+            <p><span data-i18n="footer_source">Source code available on</span> <a href="https://github.com/your-username/mnist-web-app" target="_blank">GitHub</a>.</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/train.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+</body>
+</html> 
